@@ -62,3 +62,20 @@ export interface DailyStats {
   completedTodos: number;
   categoryBreakdown: Record<string, number>;
 }
+
+export interface WeekStats {
+  weekNumber: number;
+  year: number;
+  days: DayStats[];
+  totalReads: number;
+  totalCompletedTodos: number;
+  categoryBreakdown: Record<string, number>;
+}
+
+export interface DayStats {
+  date: string;
+  dayOfWeek: string;
+  readCount: number;
+  completedTodos: number;
+  categories: Record<string, number>;
+}

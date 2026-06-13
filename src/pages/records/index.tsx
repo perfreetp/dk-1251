@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppContext } from '@/store/context';
 import { questions } from '@/data/questions';
 import { categories } from '@/data/categories';
+import { TodoItem } from '@/types';
 import styles from './index.module.scss';
 
 type TabType = 'overview' | 'read' | 'todo';
@@ -16,35 +17,66 @@ const RecordsPage: React.FC = () => {
   const [todoFilter, setTodoFilter] = useState<TodoFilter>('all');
   const [readFilter, setReadFilter] = useState<ReadFilter>('time');
   const [showAddTodo, setShowAddTodo] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<TodoItem | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [todoNote, setTodoNote] = useState('');
   const [relatedQuestionId, setRelatedQuestionId] = useState('');
+  const [showQuestionPicker, setShowQuestionPicker] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
+  const [selectedTodos, setSelectedTodos] = useState<string[]>([]);
   const { 
     readRecords, 
     todos, 
     addTodo, 
+    updateTodo,
     toggleTodo, 
     deleteTodo,
     toggleRead,
     getReadTime,
-    isRead
+    isRead,
+    batchUpdateTodos
   } = useAppContext();
 
   const handleAddTodo = () => {
     if (!newTodo.trim()) return;
     addTodo(newTodo.trim(), relatedQuestionId || undefined, selectedCategory || undefined, dueDate || undefined, todoNote || undefined);
-    resetTodoForm();
+    resetForm();
     Taro.showToast({ title: '已添加', icon: 'success' });
   };
 
-  const resetTodoForm = () => {
+  const handleUpdateTodo = () => {
+    if (!editingTodo || !newTodo.trim()) return;
+    updateTodo(editingTodo.id, {
+      content: newTodo,
+      category: selectedCategory || undefined,
+      dueDate: dueDate || undefined,
+      note: todoNote || undefined,
+      relatedQuestionId: relatedQuestionId || undefined
+    });
+    resetForm();
+    Taro.showToast({ title: '已更新', icon: 'success' });
+  };
+
+  const resetForm = () => {
     setNewTodo('');
     setSelectedCategory('');
     setDueDate('');
     setTodoNote('');
     setRelatedQuestionId('');
     setShowAddTodo(false);
+    setEditingTodo(null);
+    setShowQuestionPicker(false);
+  };
+
+  const handleEditTodo = (todo: TodoItem) => {
+    setEditingTodo(todo);
+    setNewTodo(todo.content);
+    setSelectedCategory(todo.category || '');
+    setDueDate(todo.dueDate || '');
+    setTodoNote(todo.note || '');
+    setRelatedQuestionId(todo.relatedQuestionId || '');
+    setShowAddTodo(true);
   };
 
   const readCount = readRecords.filter(r => r.read).length;
@@ -98,8 +130,9 @@ const RecordsPage: React.FC = () => {
     return `${date.getMonth() + 1}/${date.getDate()}`;
   };
 
-  const handleQuestionClick = (id: string) => {
-    Taro.navigateTo({ url: `/pages/detail/index?id=${id}` });
+  const handleQuestionClick = (id: string, todoId?: string) => {
+    const url = todoId ? `/pages/detail/index?id=${id}&todoId=${todoId}` : `/pages/detail/index?id=${id}`;
+    Taro.navigateTo({ url });
   };
 
   const handleOverviewClick = () => {
@@ -110,14 +143,20 @@ const RecordsPage: React.FC = () => {
     Taro.navigateTo({ url: '/pages/quiz/index?view=list' });
   };
 
-  const handleSelectRelatedQuestion = (qId: string) => {
-    const q = questions.find(q => q.id === qId);
-    if (q) {
-      setRelatedQuestionId(qId);
-      if (!newTodo) {
-        setNewTodo(`学习：${q.title}`);
-      }
-    }
+  const handleBatchMove = (days: number) => {
+    const newDate = new Date();
+    newDate.setDate(newDate.getDate() + days);
+    const dateStr = newDate.toISOString().split('T')[0];
+    batchUpdateTodos(selectedTodos, { dueDate: dateStr });
+    setSelectedTodos([]);
+    setBatchMode(false);
+    Taro.showToast({ title: `已调整到${days === 1 ? '明天' : days === 7 ? '下周' : `${days}天后`}`, icon: 'success' });
+  };
+
+  const toggleSelectTodo = (id: string) => {
+    setSelectedTodos(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -265,10 +304,34 @@ const RecordsPage: React.FC = () => {
 
       {activeTab === 'todo' && (
         <View className={styles.section}>
-          <View className={styles.addTodoButton} onClick={() => setShowAddTodo(!showAddTodo)}>
-            <Text className={styles.addTodoIcon}>+</Text>
-            <Text className={styles.addTodoText}>新建学习计划</Text>
+          <View className={styles.todoActions}>
+            <View className={styles.addTodoButton} onClick={() => { resetForm(); setShowAddTodo(!showAddTodo); }}>
+              <Text className={styles.addTodoIcon}>+</Text>
+              <Text className={styles.addTodoText}>{editingTodo ? '编辑计划' : '新建学习计划'}</Text>
+            </View>
+            {incompleteTodos.length > 0 && (
+              <View 
+                className={`${styles.batchButton} ${batchMode ? styles.active : ''}`}
+                onClick={() => { setBatchMode(!batchMode); setSelectedTodos([]); }}
+              >
+                <Text>{batchMode ? '取消批量' : '批量操作'}</Text>
+              </View>
+            )}
           </View>
+
+          {batchMode && selectedTodos.length > 0 && (
+            <View className={styles.batchActions}>
+              <Text className={styles.batchInfo}>已选择 {selectedTodos.length} 项</Text>
+              <View className={styles.batchButtons}>
+                <View className={styles.batchBtn} onClick={() => handleBatchMove(1)}>
+                  <Text>改到明天</Text>
+                </View>
+                <View className={styles.batchBtn} onClick={() => handleBatchMove(7)}>
+                  <Text>改到下周</Text>
+                </View>
+              </View>
+            </View>
+          )}
 
           {showAddTodo && (
             <View className={styles.addTodoForm}>
@@ -318,28 +381,53 @@ const RecordsPage: React.FC = () => {
               </View>
 
               <View className={styles.formRow}>
-                <Text className={styles.formLabel}>关联问题</Text>
-                <ScrollView className={styles.questionScroll} scrollX>
-                  <View className={styles.questionTags}>
-                    {questions.slice(0, 8).map(q => (
-                      <View 
-                        key={q.id}
-                        className={`${styles.questionTag} ${relatedQuestionId === q.id ? styles.selected : ''}`}
-                        onClick={() => setRelatedQuestionId(relatedQuestionId === q.id ? '' : q.id)}
-                      >
-                        <Text>{q.title.substring(0, 10)}...</Text>
-                      </View>
-                    ))}
+                <View className={styles.formLabelRow}>
+                  <Text className={styles.formLabel}>关联问题</Text>
+                  <Text className={styles.questionCount}>{questions.length}个问题可选</Text>
+                </View>
+                {showQuestionPicker ? (
+                  <View className={styles.questionPicker}>
+                    <View className={styles.questionSearch}>
+                      <Input
+                        className={styles.questionSearchInput}
+                        placeholder="搜索问题..."
+                        onInput={e => {}}
+                      />
+                    </View>
+                    <ScrollView className={styles.questionList} scrollY>
+                      {questions.map(q => (
+                        <View 
+                          key={q.id}
+                          className={`${styles.questionItem} ${relatedQuestionId === q.id ? styles.selected : ''}`}
+                          onClick={() => {
+                            setRelatedQuestionId(relatedQuestionId === q.id ? '' : q.id);
+                            if (!newTodo && relatedQuestionId !== q.id) {
+                              setNewTodo(`学习：${q.title}`);
+                            }
+                          }}
+                        >
+                          <Text className={styles.questionTitle}>{q.title}</Text>
+                          {relatedQuestionId === q.id && <Text className={styles.checkmark}>✓</Text>}
+                        </View>
+                      ))}
+                    </ScrollView>
+                    <View className={styles.pickerClose} onClick={() => setShowQuestionPicker(false)}>
+                      <Text>收起</Text>
+                    </View>
                   </View>
-                </ScrollView>
+                ) : (
+                  <View className={styles.selectQuestionBtn} onClick={() => setShowQuestionPicker(true)}>
+                    <Text>{relatedQuestionId ? questions.find(q => q.id === relatedQuestionId)?.title.slice(0, 20) + '...' : '选择关联问题（可选）'}</Text>
+                  </View>
+                )}
               </View>
 
               <View className={styles.formButtons}>
-                <View className={styles.cancelButton} onClick={resetTodoForm}>
+                <View className={styles.cancelButton} onClick={resetForm}>
                   <Text>取消</Text>
                 </View>
-                <View className={styles.confirmButton} onClick={handleAddTodo}>
-                  <Text style={{ color: '#fff' }}>确认添加</Text>
+                <View className={styles.confirmButton} onClick={editingTodo ? handleUpdateTodo : handleAddTodo}>
+                  <Text style={{ color: '#fff' }}>{editingTodo ? '确认修改' : '确认添加'}</Text>
                 </View>
               </View>
             </View>
@@ -375,8 +463,19 @@ const RecordsPage: React.FC = () => {
                 const cat = todo.category ? categories.find(c => c.id === todo.category) : null;
                 const isOverdue = !todo.completed && getIsOverdue(todo.dueDate);
                 const isToday = !todo.completed && getIsToday(todo.dueDate);
+                const relatedTodos = relatedQuestion ? todos.filter(t => t.relatedQuestionId === relatedQuestion.id) : [];
+                const isMultiRelated = relatedTodos.length > 1;
+                
                 return (
                   <View key={todo.id} className={`${styles.todoItem} ${todo.completed ? styles.completed : ''} ${isOverdue ? styles.overdue : ''}`}>
+                    {batchMode && !todo.completed && (
+                      <View 
+                        className={`${styles.todoSelect} ${selectedTodos.includes(todo.id) ? styles.selected : ''}`}
+                        onClick={() => toggleSelectTodo(todo.id)}
+                      >
+                        {selectedTodos.includes(todo.id) && <Text style={{ color: '#fff', fontSize: '20rpx' }}>✓</Text>}
+                      </View>
+                    )}
                     <View 
                       className={`${styles.todoCheckbox} ${todo.completed ? styles.checked : ''}`}
                       onClick={() => toggleTodo(todo.id)}
@@ -394,18 +493,30 @@ const RecordsPage: React.FC = () => {
                             {isOverdue ? '已逾期' : isToday ? '今日' : todo.dueDate}
                           </Text>
                         )}
+                        {isMultiRelated && (
+                          <Text className={styles.multiRelatedBadge}>共{relatedTodos.length}条</Text>
+                        )}
                       </View>
                       {todo.note && <Text className={styles.todoNote}>备注: {todo.note}</Text>}
                       {relatedQuestion && (
-                        <View className={styles.todoRelatedQuestion} onClick={() => handleQuestionClick(relatedQuestion.id)}>
+                        <View 
+                          className={styles.todoRelatedQuestion} 
+                          onClick={() => handleQuestionClick(relatedQuestion.id, todo.id)}
+                        >
                           <Text className={styles.todoRelatedText}>📖 {relatedQuestion.title}</Text>
+                          <Text className={styles.todoRelatedHint}>（当前第{relatedTodos.findIndex(t => t.id === todo.id) + 1}条）</Text>
                         </View>
                       )}
                       {todo.completed && todo.completedAt && (
                         <Text className={styles.todoCompletedTime}>✓ 完成于 {formatTime(todo.completedAt)}</Text>
                       )}
                     </View>
-                    <Text className={styles.todoDelete} onClick={() => deleteTodo(todo.id)}>×</Text>
+                    <View className={styles.todoActions2}>
+                      {!batchMode && !todo.completed && (
+                        <Text className={styles.editBtn} onClick={() => handleEditTodo(todo)}>编辑</Text>
+                      )}
+                      <Text className={styles.todoDelete} onClick={() => deleteTodo(todo.id)}>×</Text>
+                    </View>
                   </View>
                 );
               })}

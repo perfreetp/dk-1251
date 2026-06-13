@@ -115,55 +115,6 @@
   color: $color-primary;
 }
 
-.categoryList {
-  margin-top: $spacing-md;
-}
-
-.categoryItem {
-  display: flex;
-  align-items: center;
-  padding: $spacing-md 0;
-  border-bottom: 1rpx solid $color-divider;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.categoryIcon {
-  font-size: 32rpx;
-  margin-right: $spacing-md;
-}
-
-.categoryInfo {
-  flex: 1;
-}
-
-.categoryName {
-  font-size: $font-size-sm;
-  color: $color-text-primary;
-  margin-bottom: $spacing-xs;
-}
-
-.categoryProgressBar {
-  height: 6rpx;
-  background: $color-bg-hover;
-  border-radius: 3rpx;
-  overflow: hidden;
-}
-
-.categoryProgressFill {
-  height: 100%;
-  background: $color-primary;
-  border-radius: 3rpx;
-}
-
-.categoryCount {
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  margin-left: $spacing-md;
-}
-
 .weekStatsCard {
   background: $color-bg-card;
   border-radius: $radius-lg;
@@ -196,6 +147,7 @@
   align-items: flex-end;
   height: 160rpx;
   padding-top: $spacing-md;
+  margin-bottom: $spacing-md;
 }
 
 .weekDay {
@@ -231,6 +183,54 @@
   font-size: 20rpx;
   color: $color-primary;
   font-weight: $font-weight-medium;
+}
+
+.weekDetail {
+  border-top: 1rpx solid $color-divider;
+  padding-top: $spacing-md;
+}
+
+.dayDetail {
+  margin-bottom: $spacing-sm;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.dayLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.dayCategories {
+  display: flex;
+  gap: $spacing-xs;
+  flex-wrap: wrap;
+}
+
+.dayCategoryBadge {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  background: rgba($color-primary, 0.1);
+  padding: 4rpx 8rpx;
+  border-radius: $radius-xs;
+  font-size: 20rpx;
+}
+
+.dayCategoryCount {
+  font-size: 20rpx;
+  color: $color-primary;
+}
+
+.noActivity {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  display: block;
 }
 
 .sectionTitle {
@@ -303,18 +303,83 @@
   color: $color-primary;
 }
 
+.backlogSection {
+  background: rgba($color-warning, 0.1);
+  border: 2rpx solid rgba($color-warning, 0.3);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.backlogHeader {
+  margin-bottom: $spacing-md;
+}
+
+.backlogTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.backlogSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.backlogItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid rgba($color-warning, 0.2);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.backlogIcon {
+  font-size: 40rpx;
+  margin-right: $spacing-md;
+}
+
+.backlogInfo {
+  flex: 1;
+}
+
+.backlogName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.backlogCount {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.backlogArrow {
+  background: $color-warning;
+  color: #fff;
+  padding: 8rpx 16rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+}
+
 .remainingSection {
   background: $color-bg-card;
   border-radius: $radius-lg;
   padding: $spacing-lg;
   margin-bottom: $spacing-md;
   box-shadow: $shadow-card;
-}
-
-.remainingList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
 }
 
 .remainingItem {

@@ -19,6 +19,7 @@ interface AppContextType {
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
   getTodo: (id: string) => TodoItem | undefined;
+  batchUpdateTodos: (ids: string[], updates: Partial<TodoItem>) => void;
   searchResults: Question[];
   setSearchResults: (results: Question[]) => void;
 }
@@ -201,6 +202,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return todos.find(t => t.id === id);
   };
 
+  const batchUpdateTodos = (ids: string[], updates: Partial<TodoItem>) => {
+    setTodos(prev => prev.map(todo =>
+      ids.includes(todo.id) ? { ...todo, ...updates } : todo
+    ));
+  };
+
   return (
     <AppContext.Provider value={{
       favorites,
@@ -219,6 +226,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       toggleTodo,
       deleteTodo,
       getTodo,
+      batchUpdateTodos,
       searchResults,
       setSearchResults
     }}>

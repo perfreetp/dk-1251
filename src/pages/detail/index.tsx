@@ -3,6 +3,7 @@ import { View, Text, Input, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useAppContext } from '@/store/context';
 import { questions } from '@/data/questions';
+import { categories } from '@/data/categories';
 import { Question } from '@/types';
 import styles from './index.module.scss';
 
@@ -15,6 +16,7 @@ const DetailPage: React.FC = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [newFollowUp, setNewFollowUp] = useState('');
+  const [currentTodoId, setCurrentTodoId] = useState<string | null>(null);
   const { addFavorite, removeFavorite, isFavorite, markAsRead, addTodo, toggleTodo, todos, getTodo } = useAppContext();
 
   useEffect(() => {
@@ -22,6 +24,7 @@ const DetailPage: React.FC = () => {
     const currentPage = pages[pages.length - 1];
     const options = (currentPage as any).options || {};
     const id = options.id;
+    const todoId = options.todoId;
 
     if (id) {
       const found = questions.find(q => q.id === id);
@@ -29,6 +32,9 @@ const DetailPage: React.FC = () => {
         setQuestion(found);
         markAsRead(id);
       }
+    }
+    if (todoId) {
+      setCurrentTodoId(todoId);
     }
   }, []);
 
@@ -75,16 +81,15 @@ const DetailPage: React.FC = () => {
   };
 
   const handleToggleTodoFromDetail = () => {
-    if (!question) return;
-    const relatedTodo = todos.find(t => t.relatedQuestionId === question.id);
-    if (relatedTodo) {
-      toggleTodo(relatedTodo.id);
+    if (currentTodoId) {
+      toggleTodo(currentTodoId);
     }
   };
 
   const favoriteActive = isFavorite(question?.id || '');
-  const relatedTodo = question ? todos.find(t => t.relatedQuestionId === question.id) : null;
-  const isTodoCompleted = relatedTodo?.completed || false;
+  const relatedTodos = question ? todos.filter(t => t.relatedQuestionId === question.id) : [];
+  const currentTodo = currentTodoId ? getTodo(currentTodoId) : null;
+  const currentTodoCompleted = currentTodo?.completed || false;
 
   if (!question) {
     return (
@@ -107,6 +112,23 @@ const DetailPage: React.FC = () => {
     if (question.applicablePet === 'dog') return '狗狗';
     return '猫狗通用';
   };
+
+  const formatTime = (isoString?: string) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (minutes < 1) return '刚刚';
+    if (minutes < 60) return `${minutes}分钟前`;
+    if (hours < 24) return `${hours}小时前`;
+    if (days < 7) return `${days}天前`;
+    return `${date.getMonth() + 1}/${date.getDate()}`;
+  };
+
+  const currentCat = question.category ? categories.find(c => c.id === question.category) : null;
 
   return (
     <ScrollView className={styles.container} scrollY>
@@ -177,26 +199,64 @@ const DetailPage: React.FC = () => {
         </View>
       </View>
 
-      {relatedTodo && (
-        <View className={styles.todoStatusCard}>
-          <View className={styles.todoStatusHeader}>
-            <Text className={styles.todoStatusIcon}>📋</Text>
-            <Text className={styles.todoStatusTitle}>关联学习计划</Text>
+      {currentTodo && (
+        <View className={styles.currentTodoCard}>
+          <View className={styles.currentTodoHeader}>
+            <Text className={styles.currentTodoIcon}>📋</Text>
+            <Text className={styles.currentTodoTitle}>当前学习计划</Text>
           </View>
-          <Text className={styles.todoStatusContent}>{relatedTodo.content}</Text>
-          <View className={styles.todoStatusFooter}>
-            <Text className={`${styles.todoStatusBadge} ${isTodoCompleted ? styles.completed : ''}`}>
-              {isTodoCompleted ? '✅ 已完成' : '⏳ 待完成'}
+          <Text className={styles.currentTodoContent}>{currentTodo.content}</Text>
+          <View className={styles.currentTodoMeta}>
+            {currentCat && <Text className={styles.currentTodoTag}>{currentCat.icon} {currentCat.name}</Text>}
+            {currentTodo.dueDate && (
+              <Text className={styles.currentTodoDue}>截止：{currentTodo.dueDate}</Text>
+            )}
+          </View>
+          {currentTodo.note && <Text className={styles.currentTodoNote}>备注：{currentTodo.note}</Text>}
+          <View className={styles.currentTodoActions}>
+            <Text className={`${styles.currentTodoStatus} ${currentTodoCompleted ? styles.completed : ''}`}>
+              {currentTodoCompleted ? '✅ 已完成' : '⏳ 待完成'}
             </Text>
             <View 
-              className={`${styles.todoToggleButton} ${isTodoCompleted ? styles.completedButton : ''}`}
+              className={`${styles.toggleButton} ${currentTodoCompleted ? styles.uncomplete : styles.complete}`}
               onClick={handleToggleTodoFromDetail}
             >
-              <Text style={{ color: isTodoCompleted ? '#27AE60' : '#fff', fontSize: '26rpx' }}>
-                {isTodoCompleted ? '标记未完成' : '标记完成'}
+              <Text style={{ color: currentTodoCompleted ? '#27AE60' : '#fff', fontSize: '26rpx' }}>
+                {currentTodoCompleted ? '标记未完成' : '标记完成'}
               </Text>
             </View>
           </View>
+        </View>
+      )}
+
+      {relatedTodos.length > 0 && !currentTodo && (
+        <View className={styles.todoListCard}>
+          <View className={styles.todoListHeader}>
+            <Text className={styles.todoListIcon}>📋</Text>
+            <Text className={styles.todoListTitle}>关联学习计划（共{relatedTodos.length}条）</Text>
+          </View>
+          {relatedTodos.map(todo => (
+            <View key={todo.id} className={styles.todoListItem}>
+              <View 
+                className={styles.todoListItemContent}
+                onClick={() => {
+                  Taro.navigateTo({
+                    url: `/pages/detail/index?id=${question.id}&todoId=${todo.id}`
+                  });
+                }}
+              >
+                <Text className={`${styles.todoListItemTitle} ${todo.completed ? styles.completed : ''}`}>
+                  {todo.content}
+                </Text>
+                <View className={styles.todoListItemMeta}>
+                  {todo.dueDate && <Text className={styles.todoListItemDue}>截止：{todo.dueDate}</Text>}
+                  <Text className={`${styles.todoListItemStatus} ${todo.completed ? styles.completed : ''}`}>
+                    {todo.completed ? '已完成' : '待完成'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          ))}
         </View>
       )}
 
@@ -269,12 +329,12 @@ const DetailPage: React.FC = () => {
           <Text>{favoriteActive ? '❤️ 已收藏' : '🤍 收藏'}</Text>
         </View>
         <View 
-          className={`${styles.actionButton} ${relatedTodo ? (isTodoCompleted ? styles.todoCompleted : styles.todoActive) : styles.todo}`}
-          onClick={relatedTodo ? handleToggleTodoFromDetail : handleAddTodo}
+          className={`${styles.actionButton} ${currentTodoId ? (currentTodoCompleted ? styles.todoCompleted : styles.todoActive) : styles.todo}`}
+          onClick={currentTodoId ? handleToggleTodoFromDetail : handleAddTodo}
         >
           <Text>
-            {relatedTodo 
-              ? (isTodoCompleted ? '✅ 已完成' : '📋 待完成') 
+            {currentTodoId 
+              ? (currentTodoCompleted ? '✅ 已完成' : '📋 待完成') 
               : '📝 待办'}
           </Text>
         </View>

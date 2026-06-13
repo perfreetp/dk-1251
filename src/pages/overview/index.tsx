@@ -38,9 +38,11 @@ const OverviewPage: React.FC = () => {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
+      const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
       days.push({
         date: dateStr,
-        label: i === 0 ? '今天' : `${date.getMonth() + 1}/${date.getDate()}`,
+        label: dayNames[date.getDay()],
+        shortLabel: i === 0 ? '今天' : `${date.getMonth() + 1}/${date.getDate()}`,
         readCount: 0,
         todoCount: 0,
         categories: {} as Record<string, number>
@@ -80,6 +82,7 @@ const OverviewPage: React.FC = () => {
 
   const totalRead7Days = last7Days.reduce((sum, d) => sum + d.readCount, 0);
   const totalTodo7Days = last7Days.reduce((sum, d) => sum + d.todoCount, 0);
+  const activeDays = last7Days.filter(d => d.readCount > 0).length;
 
   const categoryHeat = categories.map(cat => {
     const readInCat = last7Days.reduce((sum, d) => sum + (d.categories[cat.id] || 0), 0);
@@ -92,11 +95,17 @@ const OverviewPage: React.FC = () => {
   const hotCategories = categoryHeat.filter(c => c.recentRead > 0);
   const coldCategories = categoryHeat.filter(c => c.recentRead === 0);
 
+  const backlogCategories = readByCategory
+    .filter(c => c.read === 0)
+    .sort((a, b) => a.total - b.total);
+
   const handleCategoryClick = (categoryId: string) => {
     Taro.navigateTo({
       url: `/pages/category/index?category=${categoryId}`
     });
   };
+
+  const maxRead = Math.max(...last7Days.map(d => d.readCount), 1);
 
   return (
     <ScrollView className={styles.container} scrollY>
@@ -147,37 +156,13 @@ const OverviewPage: React.FC = () => {
           </Text>
           <Text className={styles.progressPercent}>{readPercent}%</Text>
         </View>
-
-        <View className={styles.categoryList}>
-          {readByCategory.map(cat => (
-            <View 
-              key={cat.id} 
-              className={styles.categoryItem}
-              onClick={() => handleCategoryClick(cat.id)}
-            >
-              <Text className={styles.categoryIcon}>{cat.icon}</Text>
-              <View className={styles.categoryInfo}>
-                <Text className={styles.categoryName}>{cat.name}</Text>
-                <View className={styles.categoryProgressBar}>
-                  <View 
-                    className={styles.categoryProgressFill}
-                    style={{ width: `${cat.percent}%` }}
-                  ></View>
-                </View>
-              </View>
-              <Text className={styles.categoryCount}>
-                {cat.read}/{cat.total}
-              </Text>
-            </View>
-          ))}
-        </View>
       </View>
 
       <View className={styles.weekStatsCard}>
         <View className={styles.weekStatsHeader}>
-          <Text className={styles.weekStatsTitle}>📅 最近7天</Text>
+          <Text className={styles.weekStatsTitle}>📅 复习节奏（近7天）</Text>
           <Text className={styles.weekStatsSubtitle}>
-            阅读 {totalRead7Days} 篇 | 完成待办 {totalTodo7Days} 项
+            阅读 {totalRead7Days} 篇 | 完成待办 {totalTodo7Days} 项 | 学习 {activeDays} 天
           </Text>
         </View>
 
@@ -188,21 +173,43 @@ const OverviewPage: React.FC = () => {
                 <View 
                   className={styles.weekBarFill} 
                   style={{ 
-                    height: `${Math.max(day.readCount * 20, day.readCount > 0 ? 10 : 0)}rpx`,
+                    height: `${Math.max((day.readCount / maxRead) * 100, day.readCount > 0 ? 10 : 0)}%`,
                     backgroundColor: index === 6 ? '#FF9B6A' : '#FFD93D'
                   }}
                 ></View>
               </View>
-              <Text className={styles.weekLabel}>{day.label}</Text>
-              <Text className={styles.weekCount}>{day.readCount}</Text>
+              <Text className={styles.weekLabel}>{day.shortLabel}</Text>
+              <Text className={styles.weekCount}>{day.readCount > 0 ? `${day.readCount}篇` : '-'}</Text>
             </View>
           ))}
+        </View>
+
+        <View className={styles.weekDetail}>
+          {last7Days.filter(d => d.readCount > 0).map((day, index) => (
+            <View key={index} className={styles.dayDetail}>
+              <Text className={styles.dayLabel}>{day.shortLabel} {day.label}</Text>
+              <View className={styles.dayCategories}>
+                {Object.entries(day.categories).slice(0, 3).map(([catId, count]) => {
+                  const cat = categories.find(c => c.id === catId);
+                  return cat ? (
+                    <View key={catId} className={styles.dayCategoryBadge}>
+                      <Text>{cat.icon}</Text>
+                      <Text className={styles.dayCategoryCount}>{count}</Text>
+                    </View>
+                  ) : null;
+                })}
+              </View>
+            </View>
+          ))}
+          {last7Days.filter(d => d.readCount > 0).length === 0 && (
+            <Text className={styles.noActivity}>本周还没有学习记录</Text>
+          )}
         </View>
       </View>
 
       {hotCategories.length > 0 && (
         <View className={styles.categoryHeatSection}>
-          <Text className={styles.sectionTitle}>🔥 最近活跃分类</Text>
+          <Text className={styles.sectionTitle}>🔥 本周活跃分类</Text>
           <View className={styles.heatList}>
             {hotCategories.map((cat, index) => (
               <View 
@@ -222,22 +229,28 @@ const OverviewPage: React.FC = () => {
         </View>
       )}
 
-      {coldCategories.length > 0 && (
-        <View className={styles.remainingSection}>
-          <Text className={styles.sectionTitle}>❄️ 暂未涉及的分类</Text>
-          <View className={styles.remainingList}>
-            {coldCategories.map(cat => (
-              <View 
-                key={cat.id}
-                className={styles.remainingItem}
-                onClick={() => handleCategoryClick(cat.id)}
-              >
-                <Text className={styles.remainingIcon}>{cat.icon}</Text>
-                <Text className={styles.remainingName}>{cat.name}</Text>
-                <Text className={styles.remainingArrow}>›</Text>
-              </View>
-            ))}
+      {backlogCategories.length > 0 && (
+        <View className={styles.backlogSection}>
+          <View className={styles.backlogHeader}>
+            <Text className={styles.backlogTitle}>⚠️ 积压提醒</Text>
+            <Text className={styles.backlogSubtitle}>这些分类还未开始学习</Text>
           </View>
+          {backlogCategories.slice(0, 3).map(cat => (
+            <View 
+              key={cat.id}
+              className={styles.backlogItem}
+              onClick={() => handleCategoryClick(cat.id)}
+            >
+              <Text className={styles.backlogIcon}>{cat.icon}</Text>
+              <View className={styles.backlogInfo}>
+                <Text className={styles.backlogName}>{cat.name}</Text>
+                <Text className={styles.backlogCount}>共 {cat.total} 篇待学习</Text>
+              </View>
+              <View className={styles.backlogArrow}>
+                <Text>开始学习 ›</Text>
+              </View>
+            </View>
+          ))}
         </View>
       )}
 

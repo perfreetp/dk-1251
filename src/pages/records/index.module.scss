@@ -342,7 +342,14 @@
   padding-left: $spacing-sm;
 }
 
+.todoActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
 .addTodoButton {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -350,7 +357,6 @@
   border: 2rpx dashed $color-primary;
   border-radius: $radius-lg;
   padding: $spacing-md;
-  margin-bottom: $spacing-md;
   
   &:active {
     opacity: 0.8;
@@ -366,6 +372,58 @@
 .addTodoText {
   font-size: $font-size-md;
   color: $color-primary;
+}
+
+.batchButton {
+  padding: $spacing-md $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  box-shadow: $shadow-card;
+  
+  &.active {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.batchActions {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.batchInfo {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.batchButtons {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.batchBtn {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm $spacing-md;
+  background: rgba($color-primary, 0.1);
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  
+  &:active {
+    opacity: 0.8;
+  }
 }
 
 .addTodoForm {
@@ -393,6 +451,18 @@
   color: $color-text-secondary;
   margin-bottom: $spacing-xs;
   display: block;
+}
+
+.formLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
+.questionCount {
+  font-size: $font-size-xs;
+  color: $color-primary;
 }
 
 .categoryScroll {
@@ -435,30 +505,80 @@
   font-size: $font-size-md;
 }
 
-.questionScroll {
-  width: 100%;
-}
-
-.questionTags {
-  display: flex;
-  gap: $spacing-xs;
-}
-
-.questionTag {
-  padding: 8rpx 16rpx;
+.questionPicker {
   background: $color-bg-hover;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.questionSearch {
+  padding: $spacing-sm;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.questionSearchInput {
+  background: $color-bg-card;
   border-radius: $radius-sm;
-  font-size: $font-size-xs;
-  white-space: nowrap;
-  max-width: 200rpx;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+}
+
+.questionList {
+  max-height: 400rpx;
+}
+
+.questionItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
   
   &.selected {
-    background: rgba($color-primary, 0.2);
-    color: $color-primary;
+    background: rgba($color-primary, 0.1);
   }
   
   &:active {
-    opacity: 0.7;
+    opacity: 0.8;
+  }
+}
+
+.questionTitle {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.checkmark {
+  color: $color-primary;
+  margin-left: $spacing-sm;
+}
+
+.pickerClose {
+  text-align: center;
+  padding: $spacing-sm;
+  background: $color-bg-card;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.selectQuestionBtn {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  
+  &:active {
+    opacity: 0.8;
   }
 }
 
@@ -554,6 +674,28 @@
   }
 }
 
+.todoSelect {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid $color-border;
+  border-radius: 50%;
+  margin-right: $spacing-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+  
+  &.selected {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+  
+  &:active {
+    opacity: 0.7;
+  }
+}
+
 .todoCheckbox {
   width: 40rpx;
   height: 40rpx;
@@ -598,6 +740,7 @@
   align-items: center;
   gap: $spacing-sm;
   margin-bottom: $spacing-xs;
+  flex-wrap: wrap;
 }
 
 .todoTag {
@@ -616,6 +759,14 @@
   &.todayText {
     color: $color-warning;
   }
+}
+
+.multiRelatedBadge {
+  font-size: $font-size-xs;
+  color: $color-info;
+  background: rgba($color-info, 0.1);
+  padding: 2rpx 8rpx;
+  border-radius: $radius-xs;
 }
 
 .todoNote {
@@ -642,6 +793,12 @@
   @include text-ellipsis;
 }
 
+.todoRelatedHint {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
 .todoCompletedTime {
   font-size: $font-size-xs;
   color: $color-success;
@@ -649,11 +806,25 @@
   margin-top: $spacing-xs;
 }
 
+.todoActions2 {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.editBtn {
+  font-size: $font-size-xs;
+  color: $color-info;
+  
+  &:active {
+    opacity: 0.7;
+  }
+}
+
 .todoDelete {
   color: $color-error;
   font-size: $font-size-lg;
   padding: $spacing-xs;
-  flex-shrink: 0;
 }
 
 .emptyState {
