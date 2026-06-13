@@ -164,6 +164,145 @@
   margin-left: $spacing-md;
 }
 
+.weekStatsCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.weekStatsHeader {
+  margin-bottom: $spacing-md;
+}
+
+.weekStatsTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.weekStatsSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.weekChart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 160rpx;
+  padding-top: $spacing-md;
+}
+
+.weekDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.weekBar {
+  width: 40rpx;
+  height: 100rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  margin-bottom: $spacing-xs;
+}
+
+.weekBarFill {
+  width: 100%;
+  border-radius: $radius-sm;
+  transition: height 0.3s ease;
+}
+
+.weekLabel {
+  font-size: 20rpx;
+  color: $color-text-secondary;
+}
+
+.weekCount {
+  font-size: 20rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.categoryHeatSection {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.heatList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.heatItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.heatRank {
+  width: 40rpx;
+  height: 40rpx;
+  background: rgba($color-primary, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+}
+
+.heatRankText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.heatIcon {
+  font-size: 32rpx;
+  margin-right: $spacing-md;
+}
+
+.heatName {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.heatCount {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
 .remainingSection {
   background: $color-bg-card;
   border-radius: $radius-lg;
@@ -172,36 +311,52 @@
   box-shadow: $shadow-card;
 }
 
-.sectionTitle {
-  font-size: $font-size-md;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-  margin-bottom: $spacing-md;
+.remainingList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
 }
 
 .remainingItem {
   display: flex;
   align-items: center;
   padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
   
-  &:before {
-    content: '•';
-    color: $color-primary;
-    font-size: 24rpx;
-    margin-right: $spacing-sm;
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    opacity: 0.8;
   }
 }
 
-.remainingText {
-  flex: 1;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+.remainingIcon {
+  font-size: 32rpx;
+  margin-right: $spacing-md;
 }
 
-.remainingCount {
+.remainingInfo {
+  flex: 1;
+}
+
+.remainingName {
+  flex: 1;
   font-size: $font-size-sm;
-  color: $color-primary;
-  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.remainingDesc {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.remainingArrow {
+  font-size: $font-size-lg;
+  color: $color-text-tertiary;
+  margin-left: $spacing-md;
 }
 
 .todoProgressSection {
@@ -227,17 +382,17 @@
   font-weight: $font-weight-bold;
   color: $color-text-primary;
   margin-bottom: $spacing-xs;
+  
+  &.completed {
+    color: $color-success;
+  }
+  
+  &.pending {
+    color: $color-warning;
+  }
 }
 
 .todoStatLabel {
   font-size: $font-size-xs;
   color: $color-text-secondary;
-}
-
-.todoStatValue.completed {
-  color: $color-success;
-}
-
-.todoStatValue.pending {
-  color: $color-warning;
 }

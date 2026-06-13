@@ -32,6 +32,66 @@ const OverviewPage: React.FC = () => {
   const unreadCategories = readByCategory.filter(c => c.read < c.total);
   const hasUnread = unreadCategories.length > 0;
 
+  const getLast7Days = () => {
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      days.push({
+        date: dateStr,
+        label: i === 0 ? '今天' : `${date.getMonth() + 1}/${date.getDate()}`,
+        readCount: 0,
+        todoCount: 0,
+        categories: {} as Record<string, number>
+      });
+    }
+    return days;
+  };
+
+  const last7Days = getLast7Days();
+
+  readRecords.forEach(record => {
+    if (record.read && record.readAt) {
+      const readDate = record.readAt.split('T')[0];
+      const dayData = last7Days.find(d => d.date === readDate);
+      if (dayData) {
+        dayData.readCount++;
+        const question = questions.find(q => q.id === record.questionId);
+        if (question) {
+          if (!dayData.categories[question.category]) {
+            dayData.categories[question.category] = 0;
+          }
+          dayData.categories[question.category]++;
+        }
+      }
+    }
+  });
+
+  todos.forEach(todo => {
+    if (todo.completed && todo.completedAt) {
+      const completeDate = todo.completedAt.split('T')[0];
+      const dayData = last7Days.find(d => d.date === completeDate);
+      if (dayData) {
+        dayData.todoCount++;
+      }
+    }
+  });
+
+  const totalRead7Days = last7Days.reduce((sum, d) => sum + d.readCount, 0);
+  const totalTodo7Days = last7Days.reduce((sum, d) => sum + d.todoCount, 0);
+
+  const categoryHeat = categories.map(cat => {
+    const readInCat = last7Days.reduce((sum, d) => sum + (d.categories[cat.id] || 0), 0);
+    return {
+      ...cat,
+      recentRead: readInCat
+    };
+  }).sort((a, b) => b.recentRead - a.recentRead);
+
+  const hotCategories = categoryHeat.filter(c => c.recentRead > 0);
+  const coldCategories = categoryHeat.filter(c => c.recentRead === 0);
+
   const handleCategoryClick = (categoryId: string) => {
     Taro.navigateTo({
       url: `/pages/category/index?category=${categoryId}`
@@ -113,6 +173,74 @@ const OverviewPage: React.FC = () => {
         </View>
       </View>
 
+      <View className={styles.weekStatsCard}>
+        <View className={styles.weekStatsHeader}>
+          <Text className={styles.weekStatsTitle}>📅 最近7天</Text>
+          <Text className={styles.weekStatsSubtitle}>
+            阅读 {totalRead7Days} 篇 | 完成待办 {totalTodo7Days} 项
+          </Text>
+        </View>
+
+        <View className={styles.weekChart}>
+          {last7Days.map((day, index) => (
+            <View key={index} className={styles.weekDay}>
+              <View className={styles.weekBar}>
+                <View 
+                  className={styles.weekBarFill} 
+                  style={{ 
+                    height: `${Math.max(day.readCount * 20, day.readCount > 0 ? 10 : 0)}rpx`,
+                    backgroundColor: index === 6 ? '#FF9B6A' : '#FFD93D'
+                  }}
+                ></View>
+              </View>
+              <Text className={styles.weekLabel}>{day.label}</Text>
+              <Text className={styles.weekCount}>{day.readCount}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {hotCategories.length > 0 && (
+        <View className={styles.categoryHeatSection}>
+          <Text className={styles.sectionTitle}>🔥 最近活跃分类</Text>
+          <View className={styles.heatList}>
+            {hotCategories.map((cat, index) => (
+              <View 
+                key={cat.id}
+                className={styles.heatItem}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <View className={styles.heatRank}>
+                  <Text className={styles.heatRankText}>{index + 1}</Text>
+                </View>
+                <Text className={styles.heatIcon}>{cat.icon}</Text>
+                <Text className={styles.heatName}>{cat.name}</Text>
+                <Text className={styles.heatCount}>{cat.recentRead}篇</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {coldCategories.length > 0 && (
+        <View className={styles.remainingSection}>
+          <Text className={styles.sectionTitle}>❄️ 暂未涉及的分类</Text>
+          <View className={styles.remainingList}>
+            {coldCategories.map(cat => (
+              <View 
+                key={cat.id}
+                className={styles.remainingItem}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <Text className={styles.remainingIcon}>{cat.icon}</Text>
+                <Text className={styles.remainingName}>{cat.name}</Text>
+                <Text className={styles.remainingArrow}>›</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
       {hasUnread && (
         <View className={styles.remainingSection}>
           <Text className={styles.sectionTitle}>📖 待学习分类</Text>
@@ -122,12 +250,12 @@ const OverviewPage: React.FC = () => {
               className={styles.remainingItem}
               onClick={() => handleCategoryClick(cat.id)}
             >
-              <Text className={styles.remainingText}>
-                {cat.icon} {cat.name}
-              </Text>
-              <Text className={styles.remainingCount}>
-                还差 {cat.total - cat.read} 篇
-              </Text>
+              <Text className={styles.remainingIcon}>{cat.icon}</Text>
+              <View className={styles.remainingInfo}>
+                <Text className={styles.remainingName}>{cat.name}</Text>
+                <Text className={styles.remainingDesc}>还差 {cat.total - cat.read} 篇</Text>
+              </View>
+              <Text className={styles.remainingArrow}>›</Text>
             </View>
           ))}
         </View>

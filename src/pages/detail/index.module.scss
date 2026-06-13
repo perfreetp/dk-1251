@@ -198,6 +198,68 @@
   color: $color-text-secondary;
 }
 
+.todoStatusCard {
+  background: rgba($color-primary, 0.1);
+  border: 2rpx solid rgba($color-primary, 0.3);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.todoStatusHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.todoStatusIcon {
+  font-size: 32rpx;
+  margin-right: $spacing-sm;
+}
+
+.todoStatusTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.todoStatusContent {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.todoStatusFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todoStatusBadge {
+  font-size: $font-size-sm;
+  color: $color-warning;
+  
+  &.completed {
+    color: $color-success;
+  }
+}
+
+.todoToggleButton {
+  background: $color-primary;
+  color: $color-text-white;
+  padding: 8rpx 16rpx;
+  border-radius: $radius-button;
+  
+  &.completedButton {
+    background: rgba($color-success, 0.1);
+    border: 2rpx solid $color-success;
+  }
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
 .followUpInput {
   display: flex;
   gap: $spacing-sm;
@@ -267,6 +329,12 @@
   }
   
   &.todoActive {
+    background: rgba($color-warning, 0.1);
+    color: $color-warning;
+    border: 2rpx solid $color-warning;
+  }
+  
+  &.todoCompleted {
     background: rgba($color-success, 0.1);
     color: $color-success;
     border: 2rpx solid $color-success;

@@ -14,10 +14,11 @@ interface AppContextType {
   isRead: (id: string) => boolean;
   getReadTime: (id: string) => string | undefined;
   todos: TodoItem[];
-  addTodo: (content: string, relatedQuestionId?: string) => void;
+  addTodo: (content: string, relatedQuestionId?: string, category?: string, dueDate?: string, note?: string) => void;
+  updateTodo: (id: string, updates: Partial<TodoItem>) => void;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
-  updateTodoContent: (id: string, content: string) => void;
+  getTodo: (id: string) => TodoItem | undefined;
   searchResults: Question[];
   setSearchResults: (results: Question[]) => void;
 }
@@ -98,28 +99,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const isFavorite = (id: string) => favorites.includes(id);
 
-  const markAsRead = (id: string) => {
+  const markAsRead = (id: string, forceUpdate = false) => {
     setReadRecords(prev => {
       const existing = prev.find(r => r.questionId === id);
       if (existing) {
+        if (existing.manuallySet && !forceUpdate) {
+          return prev;
+        }
         return prev.map(r => 
           r.questionId === id 
-            ? { ...r, read: true, readAt: r.readAt || new Date().toISOString() }
+            ? { ...r, read: true, readAt: r.readAt || new Date().toISOString(), manuallySet: false }
             : r
         );
       }
-      return [...prev, { questionId: id, read: true, readAt: new Date().toISOString() }];
+      return [...prev, { questionId: id, read: true, readAt: new Date().toISOString(), manuallySet: false }];
     });
   };
 
   const markAsUnread = (id: string) => {
-    setReadRecords(prev => 
-      prev.map(r => 
-        r.questionId === id 
-          ? { ...r, read: false }
-          : r
-      ).filter(r => r.read)
-    );
+    setReadRecords(prev => {
+      const existing = prev.find(r => r.questionId === id);
+      if (existing) {
+        if (existing.manuallySet) {
+          return prev.map(r => 
+            r.questionId === id 
+              ? { ...r, read: false }
+              : r
+          ).filter(r => r.read);
+        }
+        return prev.filter(r => r.questionId !== id);
+      }
+      return prev;
+    });
   };
 
   const toggleRead = (id: string) => {
@@ -128,10 +139,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (record.read) {
         markAsUnread(id);
       } else {
-        markAsRead(id);
+        markAsRead(id, true);
       }
     } else {
-      markAsRead(id);
+      setReadRecords(prev => [
+        ...prev, 
+        { questionId: id, read: true, readAt: new Date().toISOString(), manuallySet: true }
+      ]);
     }
   };
 
@@ -145,15 +159,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return record?.readAt;
   };
 
-  const addTodo = (content: string, relatedQuestionId?: string) => {
+  const addTodo = (content: string, relatedQuestionId?: string, category?: string, dueDate?: string, note?: string) => {
     const newTodo: TodoItem = {
       id: Date.now().toString(),
       content,
       completed: false,
       createdAt: new Date().toISOString(),
-      relatedQuestionId
+      relatedQuestionId,
+      category,
+      dueDate,
+      note
     };
     setTodos(prev => [...prev, newTodo]);
+  };
+
+  const updateTodo = (id: string, updates: Partial<TodoItem>) => {
+    setTodos(prev => prev.map(todo =>
+      todo.id === id ? { ...todo, ...updates } : todo
+    ));
   };
 
   const toggleTodo = (id: string) => {
@@ -174,10 +197,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTodos(prev => prev.filter(todo => todo.id !== id));
   };
 
-  const updateTodoContent = (id: string, content: string) => {
-    setTodos(prev => prev.map(todo =>
-      todo.id === id ? { ...todo, content } : todo
-    ));
+  const getTodo = (id: string): TodoItem | undefined => {
+    return todos.find(t => t.id === id);
   };
 
   return (
@@ -194,9 +215,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       getReadTime,
       todos,
       addTodo,
+      updateTodo,
       toggleTodo,
       deleteTodo,
-      updateTodoContent,
+      getTodo,
       searchResults,
       setSearchResults
     }}>
