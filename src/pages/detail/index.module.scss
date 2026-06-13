@@ -1,0 +1,270 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding: 0 $page-padding;
+}
+
+.header {
+  padding: $spacing-lg 0;
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-md;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.tag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: rgba($color-primary, 0.1);
+  padding: 8rpx 16rpx;
+  border-radius: $radius-sm;
+  white-space: nowrap;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-sm;
+  font-size: $font-size-lg;
+}
+
+.content {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+}
+
+.warningSection {
+  background: rgba($color-warning, 0.1);
+  border: 2rpx solid rgba($color-warning, 0.3);
+}
+
+.warningList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.warningItem {
+  font-size: $font-size-md;
+  color: $color-warning;
+  padding: $spacing-sm 0;
+  display: flex;
+  align-items: flex-start;
+  
+  &:before {
+    content: '⚠️';
+    margin-right: $spacing-sm;
+  }
+}
+
+.misconceptionSection {
+  background: rgba($color-error, 0.1);
+  border: 2rpx solid rgba($color-error, 0.3);
+}
+
+.misconceptionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.misconceptionItem {
+  font-size: $font-size-md;
+  color: $color-error;
+  padding: $spacing-sm 0;
+  
+  &:before {
+    content: '❌';
+    margin-right: $spacing-sm;
+  }
+}
+
+.doctorSection {
+  background: rgba($color-error, 0.05);
+}
+
+.doctorList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.doctorItem {
+  font-size: $font-size-md;
+  color: $color-error;
+  padding: $spacing-sm 0;
+  display: flex;
+  align-items: flex-start;
+  
+  &:before {
+    content: '🚨';
+    margin-right: $spacing-sm;
+  }
+}
+
+.relatedSection {
+  background: $color-bg-card;
+}
+
+.relatedCard {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  
+  &:active {
+    opacity: 0.8;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.relatedTitle {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.relatedIcon {
+  margin-left: $spacing-sm;
+  color: $color-primary;
+}
+
+.followUpSection {
+  margin-top: $spacing-md;
+}
+
+.followUpTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.followUpList {
+  margin-bottom: $spacing-md;
+}
+
+.followUpItem {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.followUpQuestion {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.followUpAnswer {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.followUpInput {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.followUpField {
+  flex: 1;
+  background: $color-bg-hover;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  height: 80rpx;
+  font-size: $font-size-md;
+}
+
+.followUpButton {
+  background: $color-primary;
+  color: $color-text-white;
+  padding: 0 $spacing-lg;
+  border-radius: $radius-button;
+  height: $button-height-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionButton {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  
+  &.favorite {
+    background: $color-bg-hover;
+    color: $color-primary;
+    border: 2rpx solid $color-primary;
+  }
+  
+  &.favoriteActive {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.bottomSpacer {
+  height: 120rpx;
+}

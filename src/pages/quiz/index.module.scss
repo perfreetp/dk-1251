@@ -1,0 +1,224 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding: 0 $page-padding;
+}
+
+.header {
+  padding: $spacing-lg 0;
+  text-align: center;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.progress {
+  margin: $spacing-lg 0;
+  text-align: center;
+}
+
+.progressText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.progressBar {
+  height: 8rpx;
+  background: $color-bg-card;
+  border-radius: 4rpx;
+  overflow: hidden;
+  margin: 0 $spacing-xl;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary 0%, $color-primary-light 100%);
+  transition: width 0.3s ease;
+}
+
+.questionCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.questionNumber {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.questionText {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-lg;
+}
+
+.optionsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.option {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  border: 2rpx solid transparent;
+  display: flex;
+  align-items: center;
+  
+  &.selected {
+    background: rgba($color-primary, 0.1);
+    border-color: $color-primary;
+  }
+  
+  &.correct {
+    background: rgba($color-success, 0.1);
+    border-color: $color-success;
+  }
+  
+  &.incorrect {
+    background: rgba($color-error, 0.1);
+    border-color: $color-error;
+  }
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.optionLetter {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: $color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-right: $spacing-md;
+  
+  &.selected {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+}
+
+.optionText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.nextButton {
+  width: 100%;
+  height: $button-height-lg;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  margin-top: $spacing-lg;
+  
+  &:active {
+    opacity: 0.9;
+  }
+  
+  &.disabled {
+    background: $color-bg-hover;
+    color: $color-text-tertiary;
+  }
+}
+
+.resultCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+  text-align: center;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.resultIcon {
+  font-size: 120rpx;
+  margin-bottom: $spacing-md;
+}
+
+.resultTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.resultScore {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: $spacing-md;
+}
+
+.resultMessage {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-lg;
+}
+
+.retryButton {
+  width: 100%;
+  height: $button-height-lg;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.explanation {
+  background: rgba($color-info, 0.1);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+  text-align: left;
+}
+
+.explanationTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-info;
+  margin-bottom: $spacing-xs;
+}
+
+.explanationText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
