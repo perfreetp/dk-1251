@@ -13,13 +13,12 @@ const CategoryPage: React.FC = () => {
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(questions);
 
   useEffect(() => {
-    const eventChannel = Taro.getCurrentInstance().page?.getOpenerEventChannel();
-    if (eventChannel?.on) {
-      eventChannel.on('dataReceived', (data) => {
-        if (data.category) {
-          setSelectedCategory(data.category);
-        }
-      });
+    const pages = Taro.getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const options = (currentPage as any).options || {};
+    
+    if (options.category && options.category !== 'all') {
+      setSelectedCategory(options.category);
     }
   }, []);
 

@@ -24,6 +24,12 @@ const RecordsPage: React.FC = () => {
     setNewTodo(e.detail.value);
   };
 
+  const handleViewKnowledgeList = () => {
+    Taro.navigateTo({
+      url: '/pages/quiz/index?view=list'
+    });
+  };
+
   return (
     <ScrollView className={styles.container} scrollY>
       <View className={styles.header}>
@@ -31,6 +37,17 @@ const RecordsPage: React.FC = () => {
         <Text className={styles.subtitle}>
           已读 {readQuestionList.length} 篇 | 待办 {todos.length} 项
         </Text>
+      </View>
+
+      <View className={styles.knowledgeBanner} onClick={handleViewKnowledgeList}>
+        <View className={styles.knowledgeBannerContent}>
+          <Text className={styles.knowledgeBannerIcon}>📚</Text>
+          <View className={styles.knowledgeBannerText}>
+            <Text className={styles.knowledgeBannerTitle}>养宠知识清单</Text>
+            <Text className={styles.knowledgeBannerDesc}>按年龄段整理的知识汇总</Text>
+          </View>
+        </View>
+        <Text className={styles.knowledgeBannerArrow}>›</Text>
       </View>
 
       <View className={styles.tabs}>

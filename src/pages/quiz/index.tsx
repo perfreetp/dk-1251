@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text } from '@tarojs/components';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { questions } from '@/data/questions';
 import styles from './index.module.scss';
 
 interface QuizItem {
@@ -49,6 +50,95 @@ const quizData: QuizItem[] = [
   }
 ];
 
+interface KnowledgeListProps {
+  onBackToQuiz: () => void;
+}
+
+const KnowledgeList: React.FC<KnowledgeListProps> = ({ onBackToQuiz }) => {
+  const youngQuestions = questions.filter(q => 
+    q.ageRange.includes('0-12个月') || q.ageRange.includes('幼年')
+  );
+  const adultQuestions = questions.filter(q => 
+    q.ageRange.includes('成年')
+  );
+  const allAgeQuestions = questions.filter(q => 
+    q.ageRange.includes('全年龄段')
+  );
+
+  const handleQuestionClick = (id: string) => {
+    Taro.navigateTo({
+      url: `/pages/detail/index?id=${id}`
+    });
+  };
+
+  return (
+    <ScrollView className={styles.container} scrollY>
+      <View className={styles.header}>
+        <Text className={styles.title}>📚 养宠知识清单</Text>
+        <Text className={styles.subtitle}>按年龄段整理的知识汇总</Text>
+      </View>
+
+      <View className={styles.knowledgeSection}>
+        <View className={styles.ageGroupHeader}>
+          <Text className={styles.ageGroupIcon}>🍼</Text>
+          <Text className={styles.ageGroupTitle}>幼宠知识（0-12个月）</Text>
+          <Text className={styles.ageGroupCount}>{youngQuestions.length}篇</Text>
+        </View>
+        {youngQuestions.map(q => (
+          <View 
+            key={q.id} 
+            className={styles.knowledgeItem}
+            onClick={() => handleQuestionClick(q.id)}
+          >
+            <Text className={styles.knowledgeTitle}>{q.title}</Text>
+            <Text className={styles.knowledgeArrow}>›</Text>
+          </View>
+        ))}
+      </View>
+
+      <View className={styles.knowledgeSection}>
+        <View className={styles.ageGroupHeader}>
+          <Text className={styles.ageGroupIcon}>🏠</Text>
+          <Text className={styles.ageGroupTitle}>成年宠物知识</Text>
+          <Text className={styles.ageGroupCount}>{adultQuestions.length}篇</Text>
+        </View>
+        {adultQuestions.map(q => (
+          <View 
+            key={q.id} 
+            className={styles.knowledgeItem}
+            onClick={() => handleQuestionClick(q.id)}
+          >
+            <Text className={styles.knowledgeTitle}>{q.title}</Text>
+            <Text className={styles.knowledgeArrow}>›</Text>
+          </View>
+        ))}
+      </View>
+
+      <View className={styles.knowledgeSection}>
+        <View className={styles.ageGroupHeader}>
+          <Text className={styles.ageGroupIcon}>📖</Text>
+          <Text className={styles.ageGroupTitle}>全年龄段通用</Text>
+          <Text className={styles.ageGroupCount}>{allAgeQuestions.length}篇</Text>
+        </View>
+        {allAgeQuestions.map(q => (
+          <View 
+            key={q.id} 
+            className={styles.knowledgeItem}
+            onClick={() => handleQuestionClick(q.id)}
+          >
+            <Text className={styles.knowledgeTitle}>{q.title}</Text>
+            <Text className={styles.knowledgeArrow}>›</Text>
+          </View>
+        ))}
+      </View>
+
+      <View className={styles.backButton} onClick={onBackToQuiz}>
+        <Text style={{ color: '#FF9B6A', fontSize: '28rpx' }}>返回测试结果</Text>
+      </View>
+    </ScrollView>
+  );
+};
+
 const QuizPage: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -56,6 +146,17 @@ const QuizPage: React.FC = () => {
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [answered, setAnswered] = useState(false);
+  const [showKnowledgeList, setShowKnowledgeList] = useState(false);
+
+  useEffect(() => {
+    const pages = Taro.getCurrentPages();
+    const currentPage = pages[pages.length - 1];
+    const options = (currentPage as any).options || {};
+    
+    if (options.view === 'list') {
+      setShowKnowledgeList(true);
+    }
+  }, []);
 
   const quiz = quizData[currentQuestion];
   const progress = ((currentQuestion) / quizData.length) * 100;
@@ -92,6 +193,14 @@ const QuizPage: React.FC = () => {
     setAnswered(false);
   };
 
+  const handleViewKnowledgeList = () => {
+    setShowKnowledgeList(true);
+  };
+
+  const handleBackToQuiz = () => {
+    setShowKnowledgeList(false);
+  };
+
   const getOptionClass = (index: number) => {
     if (!answered) return styles.option;
     
@@ -113,6 +222,10 @@ const QuizPage: React.FC = () => {
     return styles.optionLetter;
   };
 
+  if (showKnowledgeList) {
+    return <KnowledgeList onBackToQuiz={handleBackToQuiz} />;
+  }
+
   if (showResult) {
     const percentage = Math.round((score / quizData.length) * 100);
     const emoji = percentage >= 80 ? '🎉' : percentage >= 60 ? '👍' : '💪';
@@ -123,7 +236,7 @@ const QuizPage: React.FC = () => {
       : '加油！建议多看看我们的知识问答内容哦！';
 
     return (
-      <View className={styles.container}>
+      <ScrollView className={styles.container} scrollY>
         <View className={styles.header}>
           <Text className={styles.title}>测试结果</Text>
         </View>
@@ -133,11 +246,26 @@ const QuizPage: React.FC = () => {
           <Text className={styles.resultTitle}>测试完成！</Text>
           <Text className={styles.resultScore}>{score} / {quizData.length}</Text>
           <Text className={styles.resultMessage}>{message}</Text>
-          <View className={styles.retryButton} onClick={handleRetry}>
-            <Text style={{ color: '#fff', fontSize: '28rpx' }}>再测一次</Text>
+          
+          <View className={styles.resultButtons}>
+            <View className={styles.retryButton} onClick={handleRetry}>
+              <Text style={{ color: '#fff', fontSize: '28rpx' }}>再测一次</Text>
+            </View>
+            <View className={styles.knowledgeButton} onClick={handleViewKnowledgeList}>
+              <Text style={{ color: '#FF9B6A', fontSize: '28rpx' }}>查看知识清单</Text>
+            </View>
           </View>
         </View>
-      </View>
+
+        <View className={styles.quickAccessSection}>
+          <Text className={styles.quickAccessTitle}>💡 推荐学习</Text>
+          <View className={styles.quickAccessTip}>
+            <Text style={{ fontSize: '28rpx', color: '#7F8C8D' }}>
+              点击上方"查看知识清单"，获取按年龄段整理的养宠知识汇总
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 

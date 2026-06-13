@@ -162,3 +162,56 @@
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
+
+.searchHeader {
+  margin-bottom: $spacing-lg;
+}
+
+.searchTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.searchCount {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.emptySearch {
+  text-align: center;
+  padding: $spacing-xl 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyDesc {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+}
+
+.clearSearchButton {
+  text-align: center;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+  color: $color-primary;
+  font-size: $font-size-md;
+  
+  &:active {
+    opacity: 0.7;
+  }
+}

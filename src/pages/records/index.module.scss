@@ -193,3 +193,52 @@
   font-size: $font-size-lg;
   color: $color-success;
 }
+
+.knowledgeBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.knowledgeBannerContent {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.knowledgeBannerIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+}
+
+.knowledgeBannerText {
+  flex: 1;
+}
+
+.knowledgeBannerTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.knowledgeBannerDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+.knowledgeBannerArrow {
+  font-size: 48rpx;
+  color: $color-text-white;
+  margin-left: $spacing-md;
+}
