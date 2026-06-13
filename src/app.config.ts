@@ -5,7 +5,8 @@ export default defineAppConfig({
     'pages/favorites/index',
     'pages/records/index',
     'pages/detail/index',
-    'pages/quiz/index'
+    'pages/quiz/index',
+    'pages/overview/index'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -260,6 +260,18 @@
     color: $color-text-white;
   }
   
+  &.todo {
+    background: $color-bg-hover;
+    color: $color-warning;
+    border: 2rpx solid $color-warning;
+  }
+  
+  &.todoActive {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+    border: 2rpx solid $color-success;
+  }
+  
   &:active {
     opacity: 0.9;
   }

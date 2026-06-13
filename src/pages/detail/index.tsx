@@ -15,7 +15,7 @@ const DetailPage: React.FC = () => {
   const [question, setQuestion] = useState<Question | null>(null);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
   const [newFollowUp, setNewFollowUp] = useState('');
-  const { addFavorite, removeFavorite, isFavorite, markAsRead } = useAppContext();
+  const { addFavorite, removeFavorite, isFavorite, markAsRead, addTodo, todos } = useAppContext();
 
   useEffect(() => {
     const pages = Taro.getCurrentPages();
@@ -62,6 +62,19 @@ const DetailPage: React.FC = () => {
       url: `/pages/detail/index?id=${id}`
     });
   };
+
+  const handleAddTodo = () => {
+    if (!question) return;
+    const todoContent = `学习：${question.title}`;
+    addTodo(todoContent, question.id);
+    Taro.showToast({
+      title: '已添加到待办',
+      icon: 'success',
+      duration: 1500
+    });
+  };
+
+  const isInTodo = question ? todos.some(t => t.relatedQuestionId === question.id) : false;
 
   if (!question) {
     return (
@@ -223,6 +236,12 @@ const DetailPage: React.FC = () => {
           onClick={handleFavoriteToggle}
         >
           <Text>{favoriteActive ? '❤️ 已收藏' : '🤍 收藏'}</Text>
+        </View>
+        <View 
+          className={`${styles.actionButton} ${isInTodo ? styles.todoActive : styles.todo}`}
+          onClick={handleAddTodo}
+        >
+          <Text>{isInTodo ? '✅ 已添加' : '📝 待办'}</Text>
         </View>
       </View>
     </ScrollView>

@@ -25,7 +25,15 @@ export interface TodoItem {
   content: string;
   completed: boolean;
   createdAt: string;
+  completedAt?: string;
+  relatedQuestionId?: string;
   dueDate?: string;
+}
+
+export interface ReadRecord {
+  questionId: string;
+  read: boolean;
+  readAt?: string;
 }
 
 export interface QuizQuestion {
@@ -36,8 +44,11 @@ export interface QuizQuestion {
   explanation: string;
 }
 
-export interface UserRecord {
-  questionId: string;
-  readAt: string;
-  read: boolean;
+export interface LearningOverview {
+  totalQuestions: number;
+  readQuestions: number;
+  readByCategory: Record<string, number>;
+  totalFavorites: number;
+  totalTodos: number;
+  completedTodos: number;
 }
